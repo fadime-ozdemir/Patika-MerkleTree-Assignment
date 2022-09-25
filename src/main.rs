@@ -1,31 +1,60 @@
 // Import Crates
+use std::fs;
+use sha2::{Sha256, Digest};
+
 
 fn main(filename: String) -> String {
     // Read Input Data from txt file
-    todo!()
+    let file_contents:String=fs::read_to_string(&filename).expect("Error at parse");
 
     // Create vector of strings for leaves
+    let vec_str_leaves: Vec<String> = file_contents.lines().into_iter().map(|s:&str| s.to_string()).collect();
+    let bottom_leaves_no:u32 = vec_str_leaves[0].parse().unwrap();
     
+    let mut data:Vec<String> = vec_str_leaves[1..vec_str_leaves.len()].to_vec();
 
     // Hash inputs and append to vector
-    
+    let mut hashed: Vec<String> = Vec::new(); 
+    for _ in 0..bottom_leaves_no {
+        hashed = data.iter().map(|x: &String| hash_input(x)).collect();
+        data = create_next_level(hashed);
+
+    }
 
     // Then Write an algorithm that calculates the ROOT
-
-
     // Return the root hash as a String
+    hash_input(&data[0])
 }
 
 // You can use templates below or just remove
 // Helper function to create a next leaves level may help you :)
 fn create_next_level(current_level: Vec::<String>) -> Vec::<String> {
-    todo!();
+    let mut new_level: Vec<String> = Vec::new();
+    let mut str = String::from("");
+    for (index, value) in current_level.iter().enumerate() {
+        if index %2 == 0 {
+            str = value.clone();
+        }
+        else {
+            str.push_str(&value);
+            new_level.push(str.clone());
+        }
+
+    }
+    new_level
 }
 
 
 // Helper function may help you to hash an input or You can write macro rules
-fn hash_input(a: &str) -> String {
-    todo!();
+fn hash_input(input: &str) -> String {
+   let mut hasher = Sha256::new();
+   hasher.update(input);
+   let hash= hasher.finalize();
+   let hex = hex::encode(&hash);
+   
+   
+  return hex.to_string();
+
 }
 
 
